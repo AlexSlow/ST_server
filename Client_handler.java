@@ -1,30 +1,64 @@
+import DataBase.DBHandler;
+import DataBase.FXMLparser;
+import Sql_commands.SQLcommand;
+
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.net.Socket;
 
 public class Client_handler  implements Runnable {
     private Socket socket;
-    DBHandler dbHandler;
+    private DBHandler dbHandler;
+     private PrintWriter printWriter;
 
     public Client_handler(Socket s,DBHandler dbHandler) {
         socket = s;
         this.dbHandler=dbHandler;
+
     }
 
     @Override
     public void run() {
         try( BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
 
-            String str;
+            String xml,str;
+            printWriter=new PrintWriter(socket.getOutputStream());
                 while ((str = bufferedReader.readLine())!=null) {
 
-                    System.out.println(str);
+                        if (str.equals("start"))
+                        {
+                            str="";
+                            xml="";
+                            while (!((str = bufferedReader.readLine()).equals("end")))
+                            {
+                                xml=xml+str+"\n";
+                            }
+                           SQLcommand sqLcommand= FXMLparser.decode_client_querry(xml);
+                            //System.out.println("Command "+sqLcommand.getCommand());
+                            dbHandler=new DBHandler();
+                            String response=dbHandler.sql_executor(sqLcommand);
+
+
+                            printWriter.println("start");
+                            printWriter.println(response);
+                            printWriter.println("end");
+                            printWriter.flush();
+
+
+                        }
+
+
                 }
+
+            str=bufferedReader.readLine();
+            //System.out.println(str);
 
         }catch (Exception e)
         {
+            e.printStackTrace();
+            //System.out.println("Закрываю");
             try {
                 socket.close();
             } catch (IOException e1) {
