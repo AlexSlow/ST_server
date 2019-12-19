@@ -1,12 +1,9 @@
-package DataBase.users.Rows;
-
-import DataBase.users.Collumns;
-import DataBase.users.Rows.Row;
+package DataBase.RowParser;
 
 import java.sql.ResultSet;
 import java.util.ArrayList;
 
-public class User_row extends Row {
+public class Select_user_row extends Abstract_rows_parser {
     @Override
     public   ArrayList<ArrayList<String>> getRows(ArrayList<ArrayList<String>> row,ResultSet resultSet)
     {
@@ -15,10 +12,10 @@ public class User_row extends Row {
             while(resultSet.next())
             {
                     ArrayList<String> param=new ArrayList<>();
-                    int id=resultSet.getInt("user_id");
+                    int id=resultSet.getInt(getCollumns().get(0));
                     param.add(Integer.toString(id));
-                    param.add(resultSet.getString("user_name"));
-                    param.add(resultSet.getString("mail"));
+                    param.add(resultSet.getString(getCollumns().get(1)));
+                    param.add(resultSet.getString(getCollumns().get(2)));
                     row.add(param);
 
             }
@@ -30,5 +27,14 @@ public class User_row extends Row {
         }
 
 
+    }
+    public    ArrayList<String> getCollumns()
+    {
+        ArrayList<String> collumns=new ArrayList<>();
+        collumns=new ArrayList<>();
+        collumns.add("user_id");
+        collumns.add("user_name");
+        collumns.add("mail");
+        return  collumns;
     }
 }

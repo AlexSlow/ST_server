@@ -36,11 +36,9 @@ public class Client_handler  implements Runnable {
                                 xml=xml+str+"\n";
                             }
                            SQLcommand sqLcommand= FXMLparser.decode_client_querry(xml);
-                            //System.out.println("Command "+sqLcommand.getCommand());
-                            dbHandler=new DBHandler();
+                          //  System.out.println("Command "+sqLcommand.getCommand());
                             String response=dbHandler.sql_executor(sqLcommand);
-
-
+                            //System.out.println(response);
                             printWriter.println("start");
                             printWriter.println(response);
                             printWriter.println("end");

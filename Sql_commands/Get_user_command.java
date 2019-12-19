@@ -1,15 +1,13 @@
 package Sql_commands;
 
-import DataBase.users.Collumns;
-import DataBase.users.Rows.User_row;
+import DataBase.RowParser.Select_user_row;
 
 public class Get_user_command extends SQLcommand {
     public Get_user_command()
     {
         this.isUpdate=false;
         command="get_user";
-        row=new User_row();
-        collumns= Collumns.get_users_collumns();
+        row=new Select_user_row();
     }
     @Override
     public    String getCommand()

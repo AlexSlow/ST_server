@@ -1,14 +1,13 @@
 package Sql_commands;
-import DataBase.users.Rows.Row;
+import DataBase.RowParser.Abstract_rows_parser;
 
 import java.util.ArrayList;
 
 public  abstract  class SQLcommand {
-    protected Row row;
+    protected Abstract_rows_parser row;
     protected   String command;
     protected  boolean isUpdate;
     protected ArrayList<String> params;
-    protected ArrayList<String> collumns;
     public  SQLcommand(){}
     public ArrayList<String> getParams() {
         return params;
@@ -27,11 +26,14 @@ public  abstract  class SQLcommand {
         return command;
     }
 
-    public Row getRow() {
+    public Abstract_rows_parser getRow() {
         return row;
     }
 
     public ArrayList<String> getCollumns() {
-        return collumns;
+        if (row!=null)
+        {
+            return row.getCollumns();
+        }else return null;
     }
 }

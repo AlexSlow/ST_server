@@ -87,8 +87,9 @@ public class FXMLparser {
            DOMImplementationLS  domImplementationLS=(DOMImplementationLS)domImplementation.getFeature("LS","3.0");
            LSSerializer lsSerializer=domImplementationLS.createLSSerializer();
             lsSerializer.getDomConfig().setParameter("format-pretty-print",true);
-            String fxml=lsSerializer.writeToString(document);
-            return  fxml;
+            String xml=lsSerializer.writeToString(document);
+            //System.out.println(xml);
+            return  xml;
 
         } catch (ParserConfigurationException e) {
             e.printStackTrace();
