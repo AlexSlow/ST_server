@@ -65,21 +65,21 @@ public class FXMLparser {
            operation.setTextContent(command);
 
 
-           int i=0;
 
-           for (ArrayList<String> list_param:list)
-           {
-               int j=0;
-               Element row=document.createElement("row_"+i++);
-               params.appendChild(row);
-               for (String str:list_param)
-               {
-                   Element str_element=document.createElement(collumn.get(j++));
-                   str_element.setTextContent(str);
-                   row.appendChild(str_element);
+           if ((list!=null)&&(collumn!=null)) {
+               int i=0;
+               for (ArrayList<String> list_param : list) {
+                   int j = 0;
+                   Element row = document.createElement("row_" + i++);
+                   params.appendChild(row);
+                   for (String str : list_param) {
+                       Element str_element = document.createElement(collumn.get(j++));
+                       str_element.setTextContent(str);
+                       row.appendChild(str_element);
+
+                   }
 
                }
-
            }
 
             //Вывод результата в строку

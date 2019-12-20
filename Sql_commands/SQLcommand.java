@@ -1,10 +1,12 @@
 package Sql_commands;
 import DataBase.RowParser.Abstract_rows_parser;
 
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.ArrayList;
 
 public  abstract  class SQLcommand {
-    protected Abstract_rows_parser row;
+    protected Abstract_rows_parser row; //Для вывода на XML
     protected   String command;
     protected  boolean isUpdate;
     protected ArrayList<String> params;
@@ -13,6 +15,7 @@ public  abstract  class SQLcommand {
         return params;
     }
     public  abstract  String getCommand();
+    public  abstract  void InputInTemplate(PreparedStatement preparedStatement) throws SQLException;
 
     public void setParams(ArrayList<String> params) {
         this.params = params;

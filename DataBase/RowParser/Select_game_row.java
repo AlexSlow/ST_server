@@ -3,26 +3,32 @@ package DataBase.RowParser;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 
-public class Select_user_row extends Abstract_rows_parser {
+public class Select_game_row extends  Abstract_rows_parser {
 
-    public    Select_user_row()
+    public    Select_game_row()
     {
         ArrayList<String> collumns=new ArrayList<>();
         collumns=new ArrayList<>();
+        collumns.add("game_id");
         collumns.add("user_id");
-        collumns.add("user_name");
-        collumns.add("mail");
+        collumns.add("Time");
+
+        collumns.add("Date");
+        collumns.add("Points");
+        collumns.add("Numbers");
+
+        collumns.add("Errors");
+        collumns.add("mode");
         this.collumn=collumns;
     }
     @Override
-    public   ArrayList<ArrayList<String>> getRows(
-            ResultSet resultSet)
+    public   ArrayList<ArrayList<String>> getRows(ResultSet resultSet)
     {
-      ArrayList<ArrayList<String>> rows=new ArrayList<>();
+        ArrayList<ArrayList<String>> rows=new ArrayList<>();
         try {
             while(resultSet.next())
             {
-                    ArrayList<String> param=new ArrayList<>();
+                ArrayList<String> param=new ArrayList<>();
                 for (int i=0;i<getCollumns().size();i++)
                 {
                     param.add(resultSet.getString(getCollumns().get(i)));
@@ -36,7 +42,5 @@ public class Select_user_row extends Abstract_rows_parser {
             e.printStackTrace();
             return null;
         }
-
-
     }
 }
