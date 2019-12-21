@@ -1,7 +1,6 @@
 package DataBase;
 
 import Sql_commands.SQLcommand;
-import Sql_commands.UnknownQuerry;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -25,17 +24,13 @@ public class DBHandler {
 
 
     public String sql_executor(SQLcommand sqLcommand) {
-        if (sqLcommand.getCommand() != null) {
-            String xml;
-            ArrayList<ArrayList<String>> params = new ArrayList<>();
-            if (sqLcommand instanceof UnknownQuerry) {
-                xml = FXMLparser.response(sqLcommand.getCommand_text(), params, "error", sqLcommand.getCollumns());
-
-            }else {
+        String xml;
+        ArrayList<ArrayList<String>> params = new ArrayList<>();
+        if (sqLcommand != null) {
 
             PreparedStatement statement = null;
             try {
-                statement = getDbConnection().prepareStatement(sqLcommand.getCommand());
+                statement = getDbConnection().prepareStatement(sqLcommand.getSql());
 
                 //Если  это добавление
                 if (sqLcommand.isUpdate()) //Если это комманда изменения
@@ -43,7 +38,7 @@ public class DBHandler {
 
                     sqLcommand.InputInTemplate(statement);
                     statement.executeUpdate();
-                    xml = FXMLparser.response(sqLcommand.getCommand_text(), params, "sucsess", sqLcommand.getCollumns());
+                    xml = FXMLparser.response(sqLcommand.getCommand(), params, "sucsess", null);
 
 
                 } else // Иначе если  это выборка
@@ -51,20 +46,22 @@ public class DBHandler {
                     ResultSet resultSet = null;
                     sqLcommand.InputInTemplate(statement);
                     resultSet = statement.executeQuery();
-                    params = sqLcommand.getRow().getRows(resultSet);
-                    xml = FXMLparser.response(sqLcommand.getCommand_text(), params, "sucsess", sqLcommand.getCollumns());
+                    params = SQLcommand.getRows(resultSet);
+                    xml = FXMLparser.response(sqLcommand.getCommand(), params, "sucsess", SQLcommand.getCollumns(resultSet));
 
                 }
 
             } catch (Exception e) {
                 e.printStackTrace();
-                xml = FXMLparser.response(sqLcommand.getCommand_text(), params, "error", sqLcommand.getCollumns());
+                xml = FXMLparser.response(sqLcommand.getCommand(), params, "error", null);
             }
-        }
-            return xml;
 
+
+        }else
+        {
+            xml = FXMLparser.response(sqLcommand.getCommand(), params, "error", null);
         }
-        return null;
+        return xml;
     }
 }
 

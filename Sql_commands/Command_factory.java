@@ -1,23 +1,25 @@
 package Sql_commands;
 
 public class Command_factory {
-    public SQLcommand getCommand(String command)
+
+    public SQLcommand getCommand(String type,String sql,String command)
     {
-        switch (command) {
-            case "set_user": {
-            return  new Set_user_command();
+        SQLcommand sqLcommand=new SQLcommand();
+        sqLcommand.setSql(sql);
+        sqLcommand.setCommand(command);
+        switch (type) {
+            case "querry": {
+              sqLcommand.setUpdate(false);
+              break;
             }
-            case "get_user": {
-                return  new Get_user_command();
+            case "insert": {
+                sqLcommand.setUpdate(true);
+                break;
             }
-            case "set_game": {
-                return  new Set_game_command();
-            }
-            case "get_game": {
-                return  new Get_game_command();
-            }
+
             default:
-                return new UnknownQuerry();
+                return null;
         }
+        return sqLcommand;
     }
 }

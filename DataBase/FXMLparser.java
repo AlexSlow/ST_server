@@ -17,15 +17,19 @@ public class FXMLparser {
 
   public   static SQLcommand decode_client_querry(String xml)
   {
+      //Парсим документ, а  и просто формируем параметры, формируем комманду
       Document document=convertStringToXMLDocument(xml);
       try {
          NodeList command=document.getElementsByTagName("command");
+          NodeList sql=document.getElementsByTagName("sql");
+          NodeList type=document.getElementsByTagName("type");
          NodeList params=document.getElementsByTagName("params");
          NodeList children=params.item(0).getChildNodes();
 
          Command_factory command_factory=new Command_factory();
          //System.out.println(command.item(0).getTextContent());
-          SQLcommand sqLcommand=command_factory.getCommand((command.item(0).getTextContent().toLowerCase()));
+          SQLcommand sqLcommand=command_factory.getCommand((type.item(0).getTextContent().toLowerCase()),
+                  sql.item(0).getTextContent().toLowerCase(),command.item(0).getTextContent().toLowerCase());
           ArrayList<String> params_list=new ArrayList<>();
 
 
