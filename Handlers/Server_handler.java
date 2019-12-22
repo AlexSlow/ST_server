@@ -35,4 +35,13 @@ public class Server_handler {
         //System.out.println("Добавляю");
         executorService.submit(new Client_handler(s,new DBHandler()));
     }
+    public  void close()
+    {
+        try {
+            serverSocket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
 }
