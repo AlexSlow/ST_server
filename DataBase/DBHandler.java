@@ -1,16 +1,44 @@
 package DataBase;
 
+import Handlers.Controller;
 import Sql_commands.SQLcommand;
 
+import javax.swing.text.html.ListView;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Properties;
+import java.util.logging.FileHandler;
+import java.util.logging.Logger;
 
 public class DBHandler {
-    Connection dbConnection;
+    public  static final Logger logger= Logger.getLogger(DBHandler.class.getName());
+    private Connection dbConnection;
+    static
+    {
+
+        try(FileReader reader=new FileReader("settings.ini")) {
+            Properties properties=new Properties();
+            properties.load(reader);
+            String value=properties.getProperty(Controller.log_pattern_path,
+                    Controller.getLog_pattern_path_val);
+            if (Controller.fh==null) {
+                Controller.fh = new FileHandler(value + "log", 100000, 5);
+            }
+            logger.addHandler(Controller.fh);
+            logger.setUseParentHandlers(false);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
 
     public Connection getDbConnection() throws ClassNotFoundException, SQLException, IllegalAccessException, InstantiationException {
         Class.forName("com.mysql.cj.jdbc.Driver").newInstance();
-        String url = "jdbc:mysql://localhost/shulte_taqble_db?serverTimezone=Europe/Moscow&useSSL=false";
+        String url = "jdbc:mysql://localhost/shulte_taqble_db?serverTimezone=Europe/Moscow&useSSL=false&allowPublicKeyRetrieval=true";
         String username = "root";
         String password = "543210";
         Class.forName("com.mysql.cj.jdbc.Driver").newInstance();
@@ -19,11 +47,23 @@ public class DBHandler {
     }
 
     public void close() throws SQLException {
-        dbConnection.close();
+        Logger l=Logger.getGlobal();
+        l.warning("Закрываю соединение с БД");
+        if (!dbConnection.isClosed()) {
+            dbConnection.close();
+        }
     }
 
-
-    public String sql_executor(SQLcommand sqLcommand) {
+// Выполнить запрос
+    /**
+     * The HelloWorld program implements an application that
+     * simply displays "Hello World!" to the standard output.
+     *@param sqLcommand класс хранящий sql запрос
+     * @return файл xml-ответ
+     * @author  Терехов А.С
+     * @version 1.0
+     */
+    public String sql_executor(SQLcommand sqLcommand) throws SQLException {
         String xml;
         ArrayList<ArrayList<String>> params = new ArrayList<>();
         if (sqLcommand != null) {
@@ -59,6 +99,7 @@ public class DBHandler {
 
         }else
         {
+            logger.warning("Пустой запрос для базы данных");
             xml = FXMLparser.response(sqLcommand.getCommand(), params, "error", null);
         }
         return xml;

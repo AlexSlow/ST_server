@@ -12,7 +12,7 @@ public class Command_factory {
               sqLcommand.setUpdate(false);
               break;
             }
-            case "insert": {
+            case "update": {
                 sqLcommand.setUpdate(true);
                 break;
             }

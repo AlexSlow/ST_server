@@ -1,5 +1,6 @@
 package DataBase;
 
+import Handlers.Controller;
 import Sql_commands.Command_factory;
 import Sql_commands.SQLcommand;
 import org.w3c.dom.*;
@@ -12,11 +13,42 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Properties;
+import java.util.logging.FileHandler;
+import java.util.logging.Logger;
+
 
 public class FXMLparser {
+public  static final Logger logger= Logger.getLogger(FXMLparser.class.getName());
+    static
+    {
 
+        try(FileReader reader=new FileReader("settings.ini")) {
+            Properties properties=new Properties();
+            properties.load(reader);
+            String value=properties.getProperty(Controller.log_pattern_path,
+                    Controller.getLog_pattern_path_val);
+            if (Controller.fh==null) {
+                Controller.fh = new FileHandler(value + "log", 100000, 5);
+            }
+            logger.addHandler(Controller.fh);
+            logger.setUseParentHandlers(false);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+    /**
+     * метод декодирует входящий запрос
+     *@param xml файл
+     * @return sqLcommand
+     * @author  Терехов А.С
+     * @version 1.0
+     */
   public   static SQLcommand decode_client_querry(String xml)
   {
+      logger.info("Обрабатываю запрос от пользователя");
+
       //Парсим документ, а  и просто формируем параметры, формируем комманду
       Document document=convertStringToXMLDocument(xml);
       try {
@@ -49,9 +81,19 @@ public class FXMLparser {
       }
     return  null;
   }
+
+    /**
+     * метод  парсит ответ в формате xml
+     *@param command
+     * @param list - список параметров
+     * @return xml файл-ответ
+     * @author  Терехов А.С
+     * @version 1.0
+     */
     public  static String   response(String command, ArrayList<ArrayList<String>> list,
                                      String status_str,ArrayList<String> collumn)
     {
+        logger.info("Фотмирование ответа");
       DocumentBuilderFactory  documentBuilderFactory=DocumentBuilderFactory.newInstance();//Получаем фабрику
         try {
           DocumentBuilder  documentBuilder=documentBuilderFactory.newDocumentBuilder();
@@ -97,6 +139,7 @@ public class FXMLparser {
 
         } catch (ParserConfigurationException e) {
             e.printStackTrace();
+            logger.warning("ошибка формирования ответа");
             return null;
         }
     }

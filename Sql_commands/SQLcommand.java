@@ -29,9 +29,9 @@ public    class SQLcommand {
 
         for (int i=0;i<params.size();i++)
         {
-            preparedStatement.setString(i+1,params.get(i));
+            preparedStatement.setString(i+1,params.get(i));//В стейтментах все начинается с 1
         }
-      //  System.out.println(preparedStatement);
+       // System.out.println(preparedStatement);
     }
 
     public void setParams(ArrayList<String> params) {
@@ -51,6 +51,7 @@ public    class SQLcommand {
     }
 
     public  static ArrayList<String> getCollumns(ResultSet resultSet) throws SQLException {
+
         ArrayList<String> collumns=new ArrayList<>();
             ResultSetMetaData resultSetMetaData=resultSet.getMetaData();
             //System.out.println(resultSetMetaData.getColumnCount());
