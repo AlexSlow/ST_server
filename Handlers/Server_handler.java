@@ -4,11 +4,15 @@ import DataBase.DBHandler;
 import javafx.collections.FXCollections;
 import javafx.scene.control.ListView;
 
+import java.io.FileReader;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+import static res.RESURSE.INI_FILE;
 
 public class Server_handler {
     private ExecutorService executorService = Executors.newFixedThreadPool(100);
@@ -17,8 +21,11 @@ public class Server_handler {
     public  Server_handler()
     {
         try {
-            serverSocket = new ServerSocket(5000);
-
+            FileReader fr= new FileReader(INI_FILE);
+            Properties properties=new Properties();
+            properties.load(fr);
+            serverSocket = new ServerSocket(Integer.parseInt(properties.getProperty("port","5000")));
+            fr.close();
         } catch (IOException e) {
             System.out.println("Порт занят");
             e.printStackTrace();

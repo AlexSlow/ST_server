@@ -12,27 +12,48 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Properties;
 import java.util.logging.FileHandler;
 import java.util.logging.Logger;
 
+import static res.RESURSE.INI_FILE;
+
 
 public class FXMLparser {
-public  static final Logger logger= Logger.getLogger(FXMLparser.class.getName());
+public  static final Logger logger= Logger.getLogger(FXMLparser.class.getName()); //Иерархия логгера имеет заначение
     static
     {
 
-        try(FileReader reader=new FileReader("settings.ini")) {
+        try(FileReader reader=new FileReader(INI_FILE)) {
             Properties properties=new Properties();
             properties.load(reader);
             String value=properties.getProperty(Controller.log_pattern_path,
                     Controller.getLog_pattern_path_val);
             if (Controller.fh==null) {
-                Controller.fh = new FileHandler(value + "log", 100000, 5);
+                Path file_handler= Paths.get(Controller.getLog_pattern_path_val);
+                if ((Files.exists(file_handler))&&(Files.isDirectory(file_handler))) {
+                    if (Controller.fh == null) {
+                        Controller.fh = new FileHandler(value + "log",
+                                100000, 5);
+
+                    }
+                    logger.addHandler(Controller.fh);
+                    logger.setUseParentHandlers(false);
+                }else
+                {
+                    //Нет каталога
+                }
+            }else
+            {
+                //Поставим существующий
+                logger.addHandler(Controller.fh);
+                logger.setUseParentHandlers(false); // Отключение других контроллеров
             }
-            logger.addHandler(Controller.fh);
-            logger.setUseParentHandlers(false);
+
         } catch (IOException e) {
             e.printStackTrace();
         }

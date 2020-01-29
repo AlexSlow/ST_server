@@ -5,7 +5,7 @@ import DataBase.FXMLparser;
 import Sql_commands.SQLcommand;
 import javafx.application.Platform;
 
-import java.awt.*;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -28,8 +28,6 @@ public class Client_handler  implements Runnable {
             }
         ///
         });
-
-
     }
 
     @Override

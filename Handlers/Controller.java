@@ -7,20 +7,24 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
 import javafx.scene.layout.BorderPane;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
+import java.net.URLDecoder;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Properties;
 import java.util.logging.FileHandler;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
+import static res.RESURSE.INI_FILE;
+
 
 public class Controller {
     public static Controller current_controller;
     public static final String log_pattern_path="log_pattern_path";
-    public static  final String getLog_pattern_path_val="c:\\Users\\PC\\IdeaProjects\\Shulte_table_server\\logs\\";
+   // public static  final String getLog_pattern_path_val="c:\\Users\\PC\\IdeaProjects\\Shulte_table_server\\logs\\";
+    public static   String getLog_pattern_path_val;
     public static    FileHandler fh;
 
     private  final   Logger logger= Logger.getLogger(this.getClass().getName());
@@ -57,6 +61,8 @@ public class Controller {
     }
     @FXML
     public void initialize()  {
+
+
         current_controller=this;
         //Загрузка prpperty
         final String lv_width="lv_width";
@@ -65,22 +71,41 @@ public class Controller {
         javafx.scene.control.ListView<String> listView=new ListView<>(Controller.observableList);
         pane.setCenter(listView);
 
+
+        //Получение файла jar
+
+            String path = Controller.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+            getLog_pattern_path_val=path.substring(1,path.length());
+            getLog_pattern_path_val= Paths.get(getLog_pattern_path_val).getParent().toString()+"\\logs\\";
+
+
+            //System.out.println(path);
+
+//Создадим директорию, если ее не существует
+        Path dir= Paths.get(getLog_pattern_path_val);
+        if (!((Files.exists(dir))&&(Files.isDirectory(dir))))
+        {
+            try {
+                Files.createDirectory(dir);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
         Properties  settings_default=new Properties();
         settings_default.setProperty(lv_width, "250");
         settings_default.setProperty(lv_height, "250");
         settings_default.setProperty(log_pattern_path, getLog_pattern_path_val);
         //
-
+        settings_default.setProperty("port","5000");
 
         Properties settings=new Properties(settings_default);
-        try(FileInputStream fis=new FileInputStream("settings.ini")) {
+        try(FileInputStream fis=new FileInputStream(INI_FILE)) {
             //Запишем из файла
             settings.load(fis);
         } catch (FileNotFoundException e) {
             //Если файл не обнаружен то запишем его
-            try {
-                FileOutputStream fos=new FileOutputStream("settings.ini",true);
-                settings_default.store(fos,"settings");
+            try (FileOutputStream fos=new FileOutputStream(INI_FILE,true)) {
+                settings_default.store(fos,INI_FILE);
             } catch (FileNotFoundException e1) {
                 e1.printStackTrace();
 
@@ -100,12 +125,15 @@ public class Controller {
         try {
             LogManager.getLogManager().readConfiguration();// чтение файла конфигурации, из майн
             String value=settings.getProperty(log_pattern_path, getLog_pattern_path_val);
-            if (fh==null) {
-                 fh = new FileHandler(value + "log",
-                        100000, 5);
+            Path file_handler= Paths.get(getLog_pattern_path_val);
+            if ((Files.exists(file_handler))&&(Files.isDirectory(file_handler))) {
+                if (fh == null) {
+                    fh = new FileHandler(value + "log",
+                            100000, 5);
+                }
+                logger.addHandler(fh);
+                logger.setUseParentHandlers(false);
             }
-            logger.addHandler(fh);
-            logger.setUseParentHandlers(false);
         } catch (IOException e) {
             e.printStackTrace();
         }
