@@ -1,5 +1,6 @@
 package Handlers;
 
+import Settings.Logging;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -23,11 +24,10 @@ import static res.RESURSE.INI_FILE;
 public class Controller {
     public static Controller current_controller;
     public static final String log_pattern_path="log_pattern_path";
-   // public static  final String getLog_pattern_path_val="c:\\Users\\PC\\IdeaProjects\\Shulte_table_server\\logs\\";
     public static   String getLog_pattern_path_val;
-    public static    FileHandler fh;
 
-    private  final   Logger logger= Logger.getLogger(this.getClass().getName());
+
+
     private  boolean isOn=false;
     private Server_handler server_handler;
     public  void stop_server(){if (server_handler!=null) server_handler.close();};
@@ -37,10 +37,16 @@ public class Controller {
     @FXML
     public void On_Off()
     {
+        Logging logging=new Logging();
+
 
         if (!isOn)
         {
-            logger.info("Сервер включен");
+            try {
+                logging.getFileLogger(this.getClass()).info("Сервер включен");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             Runnable runnable=new Runnable() {
                 @Override
                 public void run() {
@@ -53,7 +59,12 @@ public class Controller {
             Thread thread=new Thread(runnable);
             thread.start();
         }else
-        { logger.info("Сервер выключен");
+        {
+            try {
+                logging.getFileLogger(this.getClass()).info("Сервер выключен");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             server_handler.close();
             button.setText("Включить");
             isOn=false;
@@ -73,15 +84,11 @@ public class Controller {
 
 
         //Получение файла jar
-
             String path = Controller.class.getProtectionDomain().getCodeSource().getLocation().getPath();
-            getLog_pattern_path_val=path.substring(1,path.length());
+            getLog_pattern_path_val=path.substring(1,path.length());//Мы удалим первый символ
             getLog_pattern_path_val= Paths.get(getLog_pattern_path_val).getParent().toString()+"\\logs\\";
 
-
-            //System.out.println(path);
-
-//Создадим директорию, если ее не существует
+//Создадим директорию логов, если ее не существует
         Path dir= Paths.get(getLog_pattern_path_val);
         if (!((Files.exists(dir))&&(Files.isDirectory(dir))))
         {
@@ -122,22 +129,12 @@ public class Controller {
         }
 
 
+        Logging logging=new Logging();
         try {
-            LogManager.getLogManager().readConfiguration();// чтение файла конфигурации, из майн
-            String value=settings.getProperty(log_pattern_path, getLog_pattern_path_val);
-            Path file_handler= Paths.get(getLog_pattern_path_val);
-            if ((Files.exists(file_handler))&&(Files.isDirectory(file_handler))) {
-                if (fh == null) {
-                    fh = new FileHandler(value + "log",
-                            100000, 5);
-                }
-                logger.addHandler(fh);
-                logger.setUseParentHandlers(false);
-            }
+            logging.getFileLogger(this.getClass()).info("Запуск");
         } catch (IOException e) {
             e.printStackTrace();
         }
-        logger.info("Запуск");
 
         pane.setPrefSize(Integer.parseInt(settings.getProperty(lv_width,"250")),
                 Integer.parseInt(settings.getProperty(lv_height,"250")));

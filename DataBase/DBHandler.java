@@ -1,6 +1,7 @@
 package DataBase;
 
 import Handlers.Controller;
+import Settings.Logging;
 import Sql_commands.SQLcommand;
 
 import javax.swing.text.html.ListView;
@@ -19,42 +20,8 @@ import java.util.logging.Logger;
 import static res.RESURSE.INI_FILE;
 
 public class DBHandler {
-    public  static final Logger logger= Logger.getLogger(DBHandler.class.getName());
     private Connection dbConnection;
-    static
-    {
 
-        try(FileReader reader=new FileReader(INI_FILE))
-        {
-            Properties properties=new Properties();
-            properties.load(reader);
-            String value=properties.getProperty(Controller.log_pattern_path,
-                    Controller.getLog_pattern_path_val);
-            if (Controller.fh==null) {
-                Path file_handler= Paths.get(Controller.getLog_pattern_path_val);
-                if ((Files.exists(file_handler))&&(Files.isDirectory(file_handler))) {
-                    if (Controller.fh == null) {
-                        Controller.fh = new FileHandler(value + "log",
-                                100000, 5);
-                        logger.addHandler(Controller.fh);
-                        logger.setUseParentHandlers(false); // Отключение других контроллеров
-                    }
-
-                }else
-                {
-                    //Нет каталога
-                }
-            }else
-            {
-                logger.addHandler(Controller.fh);
-                logger.setUseParentHandlers(false); // Отключение других контроллеров
-            }
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-    }
 
 
     public Connection getDbConnection() throws ClassNotFoundException, SQLException, IllegalAccessException, InstantiationException {
@@ -120,7 +87,12 @@ public class DBHandler {
 
         }else
         {
-            logger.warning("Пустой запрос для базы данных");
+            Logging logging=new Logging();
+            try {
+                logging.getFileLogger(this.getClass()).warning("Пустой запрос для базы данных");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             xml = FXMLparser.response(sqLcommand.getCommand(), params, "error", null);
         }
         return xml;

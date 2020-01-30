@@ -1,6 +1,7 @@
 package Handlers;
 
 import DataBase.DBHandler;
+import Settings.Logging;
 import javafx.collections.FXCollections;
 import javafx.scene.control.ListView;
 
@@ -11,6 +12,7 @@ import java.net.Socket;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.logging.Logger;
 
 import static res.RESURSE.INI_FILE;
 
@@ -20,16 +22,35 @@ public class Server_handler {
 
     public  Server_handler()
     {
-        try {
-            FileReader fr= new FileReader(INI_FILE);
+        try( FileReader fr= new FileReader(INI_FILE)) {
+
             Properties properties=new Properties();
             properties.load(fr);
             serverSocket = new ServerSocket(Integer.parseInt(properties.getProperty("port","5000")));
-            fr.close();
         } catch (IOException e) {
             System.out.println("Порт занят");
             e.printStackTrace();
         }
+
+        Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
+           Logger logger;
+            {
+                Logging logging=new Logging();
+                try {
+                    logger=logging.getFileLogger(this.getClass());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void uncaughtException(Thread t, Throwable e) {
+                if (logger!=null)
+                {
+                    logger.warning("Вызвано непроверяемое исключение! "+e.getMessage());
+                }
+            }
+        });
     }
     public  void  listening()
     {
@@ -49,6 +70,7 @@ public class Server_handler {
     public  void add(Socket s)
     {
         //System.out.println("Добавляю");
+
         executorService.submit(new Client_handler(s,new DBHandler()));
     }
     public  void close()

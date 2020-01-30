@@ -1,6 +1,7 @@
 package DataBase;
 
 import Handlers.Controller;
+import Settings.Logging;
 import Sql_commands.Command_factory;
 import Sql_commands.SQLcommand;
 import org.w3c.dom.*;
@@ -24,41 +25,7 @@ import static res.RESURSE.INI_FILE;
 
 
 public class FXMLparser {
-public  static final Logger logger= Logger.getLogger(FXMLparser.class.getName()); //Иерархия логгера имеет заначение
-    static
-    {
-
-        try(FileReader reader=new FileReader(INI_FILE)) {
-            Properties properties=new Properties();
-            properties.load(reader);
-            String value=properties.getProperty(Controller.log_pattern_path,
-                    Controller.getLog_pattern_path_val);
-            if (Controller.fh==null) {
-                Path file_handler= Paths.get(Controller.getLog_pattern_path_val);
-                if ((Files.exists(file_handler))&&(Files.isDirectory(file_handler))) {
-                    if (Controller.fh == null) {
-                        Controller.fh = new FileHandler(value + "log",
-                                100000, 5);
-
-                    }
-                    logger.addHandler(Controller.fh);
-                    logger.setUseParentHandlers(false);
-                }else
-                {
-                    //Нет каталога
-                }
-            }else
-            {
-                //Поставим существующий
-                logger.addHandler(Controller.fh);
-                logger.setUseParentHandlers(false); // Отключение других контроллеров
-            }
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-    }
+ //Иерархия логгера имеет заначение
     /**
      * метод декодирует входящий запрос
      *@param xml файл
@@ -68,7 +35,14 @@ public  static final Logger logger= Logger.getLogger(FXMLparser.class.getName())
      */
   public   static SQLcommand decode_client_querry(String xml)
   {
-      logger.info("Обрабатываю запрос от пользователя");
+      Logging logging=new Logging();
+
+      try {
+          logging.getFileLogger(FXMLparser.class).info("Обрабатываю запрос от пользователя");
+      } catch (IOException e) {
+          e.printStackTrace();
+      }
+
 
       //Парсим документ, а  и просто формируем параметры, формируем комманду
       Document document=convertStringToXMLDocument(xml);
@@ -114,8 +88,15 @@ public  static final Logger logger= Logger.getLogger(FXMLparser.class.getName())
     public  static String   response(String command, ArrayList<ArrayList<String>> list,
                                      String status_str,ArrayList<String> collumn)
     {
-        logger.info("Фотмирование ответа");
-      DocumentBuilderFactory  documentBuilderFactory=DocumentBuilderFactory.newInstance();//Получаем фабрику
+        Logging logging=new Logging();
+
+        try {
+            logging.getFileLogger(FXMLparser.class).info("Фотмирование ответа");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        DocumentBuilderFactory  documentBuilderFactory=DocumentBuilderFactory.newInstance();//Получаем фабрику
         try {
           DocumentBuilder  documentBuilder=documentBuilderFactory.newDocumentBuilder();
           Document  document=documentBuilder.newDocument();
@@ -160,7 +141,13 @@ public  static final Logger logger= Logger.getLogger(FXMLparser.class.getName())
 
         } catch (ParserConfigurationException e) {
             e.printStackTrace();
-            logger.warning("ошибка формирования ответа");
+
+
+            try {
+                logging.getFileLogger(FXMLparser.class).warning("ошибка формирования ответа");
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
             return null;
         }
     }
